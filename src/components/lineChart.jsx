@@ -2,6 +2,9 @@ import React, { Component } from "react";
 import { Line } from "react-chartjs-2";
 import Popup from "./popupBox";
 import styled from "styled-components";
+import localdata from "../data/data";
+import * as zoom from "chartjs-plugin-zoom";
+// import Hammer from "hammerjs";
 
 const Button = styled.button`
   color: white;
@@ -43,6 +46,8 @@ class LineChart extends Component {
         error => {
           this.setState({
             isLoaded: true,
+            data: localdata.data,
+            labels: localdata.label,
             error
           });
         }
@@ -55,6 +60,33 @@ class LineChart extends Component {
 
   render() {
     let chartOptions = {
+      // Container for pan options
+      pan: {
+        // Boolean to enable panning
+        enabled: false,
+
+        // Panning directions. Remove the appropriate direction to disable
+        // Eg. 'y' would only allow panning in the y direction
+        mode: "xy"
+        // Function called once panning is completed
+        // Useful for dynamic data loading
+      },
+
+      // Container for zoom options
+      zoom: {
+        // Boolean to enable zooming
+        enabled: true,
+        sensitivity: 0.01,
+        // drag: true,
+
+        // Zooming directions. Remove the appropriate direction to disable
+        // Eg. 'y' would only allow zooming in the y direction
+        mode: "x",
+        limits: {
+          max: 10,
+          min: 0.5
+        }
+      },
       events: ["click"],
       tooltips: {
         enabled: true,
