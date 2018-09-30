@@ -1,10 +1,21 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 
-const Title = styled.h2`
+const Item = styled.div`
   font-size: 1em;
   text-align: center;
   color: palevioletred;
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  display: block;
+  :hover {
+    color: white;
+    background: gray;
+  }
+  :active {
+    color: red;
+    background: gray;
+  }
 `;
 
 const SideNav = styled.div`
@@ -20,11 +31,31 @@ const SideNav = styled.div`
 `;
 
 class answerList extends Component {
+  state = { data: [] };
   constructor(props) {
     super(props);
-    this.state = { value: "" };
+    this.state = { data: [] };
 
     this.handleChange = this.handleChange.bind(this);
+  }
+
+  componentDidMount() {
+    fetch("http://zehuali.com/data/answer")
+      .then(res => res.json())
+      .then(
+        result => {
+          console.log(result);
+          this.setState({
+            data: result
+          });
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+        error => {
+          console.log(error);
+        }
+      );
   }
 
   handelSubmit = () => {
@@ -34,11 +65,15 @@ class answerList extends Component {
     this.setState({ value: event.target.value });
   }
   render() {
+    console.log(this.state.data);
+    // console.log(this.state.data[0]["x"]);
     return (
       <SideNav>
-        <Title>Label it:</Title>
-        <Title>Label it:</Title>
-        <Title>Label it:</Title>
+        {this.state.data.map((value, index, array) => (
+          <Item>
+            X: {value.x}, Y: {value.y}
+          </Item>
+        ))}
       </SideNav>
     );
   }

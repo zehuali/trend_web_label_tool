@@ -4,7 +4,6 @@ import Popup from "./popupBox";
 import styled from "styled-components";
 import localdata from "../data/data";
 import * as zoom from "chartjs-plugin-zoom";
-import AnswerList from "./answerList";
 
 // import Hammer from "hammerjs";
 
@@ -172,7 +171,7 @@ class LineChart extends Component {
     return (
       <Main>
         <h1>Hello Line Chart!</h1>
-        <Button onClick={this.handelSubmit}>Submit</Button>
+
         <Line data={data} options={chartOptions} ref="chart" />
         {this.state.showTooltip ? (
           <Popup
@@ -181,6 +180,7 @@ class LineChart extends Component {
             getText={this.getText}
           />
         ) : null}
+        <Button onClick={this.handelSubmit}>Submit</Button>
       </Main>
     );
   }
