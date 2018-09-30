@@ -21,6 +21,35 @@ const Main = styled.div`
   margin-left: 160px;
 `;
 
+const Item = styled.div`
+  font-size: 1em;
+  text-align: center;
+  color: palevioletred;
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  display: block;
+  :hover {
+    color: white;
+    background: gray;
+  }
+  :active {
+    color: red;
+    background: gray;
+  }
+`;
+
+const SideNav = styled.div`
+  height: 100%;
+  width: 160px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #111;
+  overflow-x: hidden;
+  padding-top: 20px;
+`;
+
 class LineChart extends Component {
   state = {
     top: 0,
@@ -31,7 +60,8 @@ class LineChart extends Component {
     showTooltip: false,
     data: [],
     labels: [],
-    answer: []
+    answer: [],
+    answersList: []
   };
 
   constructor(props) {
@@ -63,6 +93,22 @@ class LineChart extends Component {
             labels: localdata.label,
             error
           });
+        }
+      );
+    fetch("http://zehuali.com/data/answer")
+      .then(res => res.json())
+      .then(
+        result => {
+          console.log(result);
+          this.setState({
+            answersList: result
+          });
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+        error => {
+          console.log(error);
         }
       );
   }
@@ -169,19 +215,28 @@ class LineChart extends Component {
     console.log(this.state.xAxis);
     console.log(this.state.yAxis);
     return (
-      <Main>
-        <h1>Hello Line Chart!</h1>
+      <div>
+        <SideNav>
+          {this.state.answersList.map((value, index, array) => (
+            <Item>
+              X: {value.x}, Y: {value.y}
+            </Item>
+          ))}
+        </SideNav>
+        <Main>
+          <h1>Hello Line Chart!</h1>
 
-        <Line data={data} options={chartOptions} ref="chart" />
-        {this.state.showTooltip ? (
-          <Popup
-            top={this.state.top}
-            left={this.state.left}
-            getText={this.getText}
-          />
-        ) : null}
-        <Button onClick={this.handelSubmit}>Submit</Button>
-      </Main>
+          <Line data={data} options={chartOptions} ref="chart" />
+          {this.state.showTooltip ? (
+            <Popup
+              top={this.state.top}
+              left={this.state.left}
+              getText={this.getText}
+            />
+          ) : null}
+          <Button onClick={this.handelSubmit}>Submit</Button>
+        </Main>
+      </div>
     );
   }
 }
