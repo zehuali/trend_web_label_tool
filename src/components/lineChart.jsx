@@ -4,6 +4,8 @@ import Popup from "./popupBox";
 import styled from "styled-components";
 import localdata from "../data/data";
 import * as zoom from "chartjs-plugin-zoom";
+import AnswerList from "./answerList";
+
 // import Hammer from "hammerjs";
 
 const Button = styled.button`
@@ -16,6 +18,10 @@ const Button = styled.button`
   border-radius: 3px;
 `;
 
+const Main = styled.div`
+  margin-left: 160px;
+`;
+
 class LineChart extends Component {
   state = {
     top: 0,
@@ -25,8 +31,16 @@ class LineChart extends Component {
     labels: [],
     showTooltip: false,
     data: [],
-    labels: []
+    labels: [],
+    answer: []
   };
+
+  constructor(props) {
+    super(props);
+
+    this.handelSubmit = this.handelSubmit.bind(this);
+    this.getText = this.getText.bind(this);
+  }
 
   componentDidMount() {
     fetch("http://zehuali.com/data")
@@ -55,8 +69,25 @@ class LineChart extends Component {
   }
 
   getText(text) {
-    console.log(text);
+    this.state.answer.push({
+      x: this.state.xAxis,
+      y: this.state.yAxis,
+      answer: text
+    });
+    console.log("aa,", this);
   }
+
+  handelSubmit = () => {
+    fetch("http://zehuali.com/data/answer", {
+      method: "POST",
+      headers: {
+        "cache-control": "no-cache",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(this.state.answer)
+    });
+    console.log(this.state.answer);
+  };
 
   render() {
     let chartOptions = {
@@ -120,7 +151,7 @@ class LineChart extends Component {
         {
           label: "My First dataset",
           fill: false,
-          lineTension: 0.5,
+          lineTension: 0,
           backgroundColor: "rgba(75,192,192,0.4)",
           borderColor: "rgba(75,192,192,1)",
           borderCapStyle: "butt",
@@ -139,9 +170,9 @@ class LineChart extends Component {
     console.log(this.state.xAxis);
     console.log(this.state.yAxis);
     return (
-      <div>
+      <Main>
         <h1>Hello Line Chart!</h1>
-        <Button>Submit</Button>
+        <Button onClick={this.handelSubmit}>Submit</Button>
         <Line data={data} options={chartOptions} ref="chart" />
         {this.state.showTooltip ? (
           <Popup
@@ -150,7 +181,7 @@ class LineChart extends Component {
             getText={this.getText}
           />
         ) : null}
-      </div>
+      </Main>
     );
   }
 }
