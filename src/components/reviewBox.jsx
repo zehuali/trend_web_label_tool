@@ -10,19 +10,15 @@ const Title = styled.h2`
 const Container = styled.div`
   top: ${prop => prop.posi.top};
   left: ${prop => prop.posi.left};
-  background-color: papayawhip;
+  background-color: DarkSeaGreen;
   position: absolute;
   opacity: 0.8;
 `;
 
-class Popup extends Component {
+class ReviewBox extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      value: "",
-      top: 0,
-      left: 0
-    };
+    this.state = { value: "" };
 
     this.handleChange = this.handleChange.bind(this);
   }
@@ -34,20 +30,14 @@ class Popup extends Component {
     this.setState({ value: event.target.value });
   }
   render() {
-    if (
-      this.props.top != this.state.top ||
-      this.props.left != this.state.left
-    ) {
-      this.state.value = "";
-      this.state.top = this.props.top;
-      this.state.left = this.props.left;
-    }
-
+    console.log(this.props);
     return (
       <Container
         posi={{ top: this.props.top + "px", left: this.props.left + "px" }}
       >
-        <Title>Label it:</Title>
+        <Title>Student Answer:</Title>
+        <p>{this.props.answer}</p>
+
         <input value={this.state.value} onChange={this.handleChange} />
         <button onClick={this.handelSubmit}>save</button>
       </Container>
@@ -55,4 +45,4 @@ class Popup extends Component {
   }
 }
 
-export default Popup;
+export default ReviewBox;
