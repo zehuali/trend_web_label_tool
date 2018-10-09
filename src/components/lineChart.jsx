@@ -3,6 +3,7 @@ import { Line } from "react-chartjs-2";
 import Popup from "./popupBox";
 import styled from "styled-components";
 import localdata from "../data/data";
+import colors from "../data/color";
 import ReviewBox from "./reviewBox";
 import * as zoom from "chartjs-plugin-zoom";
 
@@ -74,11 +75,29 @@ class LineChart extends Component {
     studentAnswer: "",
     answersList: [],
     lineChart: null,
+    datasets: [],
     charopt: {
+      responsive: true,
+      scales: {
+        xAxes: [
+          {
+            gridLines: {
+              display: false
+            }
+          }
+        ],
+        yAxes: [
+          {
+            gridLines: {
+              display: false
+            }
+          }
+        ]
+      },
       // Container for pan options
       pan: {
         // Boolean to enable panning
-        enabled: true,
+        enabled: false,
 
         // Panning directions. Remove the appropriate direction to disable
         // Eg. 'y' would only allow panning in the y direction
@@ -91,23 +110,25 @@ class LineChart extends Component {
       zoom: {
         // Boolean to enable zooming
         enabled: true,
-        sensitivity: 0.01,
-        // drag: true,
+        sensitivity: 0.1,
+        drag: false,
 
         // Zooming directions. Remove the appropriate direction to disable
         // Eg. 'y' would only allow zooming in the y direction
         mode: "x",
         limits: {
-          max: 10,
-          min: 0.5
+          max: 100,
+          min: 50
         },
-        onZoom: () => {
+
+        onZoom: function(showTooltip, showReviewBox) {
           console.log("I was zoomed!!!");
-          // this.setState({
-          //   showTooltip: false,
-          //   showReviewBox: false
-          // });
-        }
+          console.log(this);
+          showTooltip = false;
+          showReviewBox = false;
+        },
+        showTooltip: false,
+        showReviewBox: false
       },
       events: ["click"],
       tooltips: {
@@ -156,10 +177,17 @@ class LineChart extends Component {
       .then(
         result => {
           console.log(result);
+          let datasets = result.map((x, index) => {
+            return x.data.map(xx => {
+              return xx + index * 300;
+            });
+          });
+          console.log(datasets);
           this.setState({
-            isLoaded: true,
-            labels: result.label,
-            data: result.data
+            // isLoaded: true,
+            labels: result[1].label,
+            data: result[1].data,
+            datasets: datasets
           });
         },
         // Note: it's important to handle errors here
@@ -167,7 +195,7 @@ class LineChart extends Component {
         // exceptions from actual bugs in components.
         error => {
           this.setState({
-            isLoaded: true,
+            // isLoaded: true,
             data: localdata.data,
             labels: localdata.label,
             error
@@ -237,25 +265,25 @@ class LineChart extends Component {
   render() {
     let chartData = {
       labels: this.state.labels,
-      datasets: [
-        {
-          label: "My First dataset",
+      datasets: this.state.datasets.map((data, index) => {
+        return {
+          label: "Dataset " + (index + 1),
           fill: false,
           lineTension: 0,
-          backgroundColor: "rgba(75,192,192,0.4)",
-          borderColor: "rgba(75,192,192,1)",
+          backgroundColor: colors[index % colors.length],
+          borderColor: colors[index % colors.length],
           borderCapStyle: "butt",
           borderDash: [],
           borderDashOffset: 0.0,
           borderJoinStyle: "miter",
-          pointBorderColor: "rgba(75,192,192,1)",
+          pointBorderColor: colors[index % colors.length],
           pointBackgroundColor: "#fff",
           pointBorderWidth: 0,
           pointRadius: 1,
           pointHitRadius: 10,
-          data: this.state.data
-        }
-      ]
+          data: data
+        };
+      })
     };
     this.state.lineChart = (
       <Line data={chartData} options={this.state.charopt} ref="chart" />

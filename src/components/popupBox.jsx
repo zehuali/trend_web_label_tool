@@ -13,6 +13,8 @@ const Container = styled.div`
   background-color: papayawhip;
   position: absolute;
   opacity: 0.8;
+  border-radius: 5px;
+  padding: 10px;
 `;
 
 class Popup extends Component {
