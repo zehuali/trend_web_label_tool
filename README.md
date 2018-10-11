@@ -1,3 +1,3 @@
 # Demo
 
-http://www.zehuali.com/app
+http://zehuali.com/app
