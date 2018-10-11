@@ -7,23 +7,13 @@ import colors from "../data/color";
 import ReviewBox from "./reviewBox";
 import * as zoom from "chartjs-plugin-zoom";
 
-// import Hammer from "hammerjs";
-
-// Line.prototype.draw = function() {
-//   // Chart.elements.Line.prototype.draw.apply(this, arguments);
-//   console.log(this);
-//   let meta = this.chartInstance.getDatasetMeta(0);
-//   console.log("aaaa", meta.data[1]._model.x);
-//   // debugger;
-// };
-
 const Button = styled.button`
   color: white;
-  background: blue;
+  background: DarkTurquoise;
   font-size: 1em;
   margin: 1em;
   padding: 0.25em 1em;
-  border: 2px solid blue;
+  border: 2px solid DarkTurquoise;
   border-radius: 3px;
 `;
 
@@ -34,7 +24,7 @@ const Main = styled.div`
 const Item = styled.div`
   font-size: 1em;
   text-align: center;
-  color: palevioletred;
+  color: white;
   padding: 6px 8px 6px 16px;
   text-decoration: none;
   display: block;
@@ -43,7 +33,7 @@ const Item = styled.div`
     background: gray;
   }
   :active {
-    color: red;
+    color: #d0cfcf;
     background: gray;
   }
 `;
@@ -55,7 +45,7 @@ const SideNav = styled.div`
   z-index: 1;
   top: 0;
   left: 0;
-  background-color: #111;
+  background-color: #3f3f3f;
   overflow-x: hidden;
   padding-top: 20px;
 `;
@@ -76,6 +66,7 @@ class LineChart extends Component {
     answersList: [],
     lineChart: null,
     datasets: [],
+    setindex: 0,
     charopt: {
       responsive: true,
       scales: {
@@ -83,12 +74,18 @@ class LineChart extends Component {
           {
             gridLines: {
               display: false
+            },
+            ticks: {
+              display: false
             }
           }
         ],
         yAxes: [
           {
             gridLines: {
+              display: false
+            },
+            ticks: {
               display: false
             }
           }
@@ -148,14 +145,15 @@ class LineChart extends Component {
             this.state.showReviewBox = false;
           }
           console.log(tooltipModel);
-
+          let idx = tooltipModel.dataPoints[0].datasetIndex;
           const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
           // set position of tooltip
           this.setState({
             xAxis: Number(tooltipModel.dataPoints[0].xLabel),
             yAxis: tooltipModel.dataPoints[0].yLabel,
             top: position.top + tooltipModel.caretY,
-            left: position.left + tooltipModel.caretX
+            left: position.left + tooltipModel.caretX,
+            setindex: idx
           });
           // console.log(position.left + tooltipModel.caretX);
         }
@@ -224,7 +222,8 @@ class LineChart extends Component {
     this.state.answer.push({
       x: this.state.xAxis,
       y: this.state.yAxis,
-      answer: text
+      answer: text,
+      dataset: this.state.setindex
     });
     this.forceUpdate();
     console.log("aa,", this);
@@ -242,12 +241,18 @@ class LineChart extends Component {
     console.log(this.state.answer);
   };
 
+  handelReset = () => {
+    this.setState({
+      answer: []
+    });
+  };
+
   handelSidenavClick = value => {
     this.state.showReviewBox = true;
     this.state.showTooltip = false;
     console.log("event", value);
     console.log(this);
-    const meta = this.refs.chart.chartInstance.getDatasetMeta(0);
+    const meta = this.refs.chart.chartInstance.getDatasetMeta(value.dataset);
     const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
     let x = meta.data[value.x]._model.x;
     let y = meta.data[value.x]._model.y;
@@ -294,13 +299,13 @@ class LineChart extends Component {
         <SideNav>
           {this.state.answersList.map((value, index, array) => (
             <Item value={value} onClick={() => this.handelSidenavClick(value)}>
-              X: {value.x}, Y: {value.y}, Answer: {value.answer}
+              Answer: {value.answer}
             </Item>
           ))}
           <hr />
           {this.state.answer.map((value, index, array) => (
             <Item value={value} onClick={() => this.handelSidenavClick(value)}>
-              X: {value.x}, Y: {value.y}, Answer: {value.answer}
+              Answer: {value.answer}
             </Item>
           ))}
           <br />
@@ -308,8 +313,8 @@ class LineChart extends Component {
           <br />
           <br />
         </SideNav>
-        <Main>
-          <h1>Hello Line Chart!</h1>
+        <Main id="main">
+          <h1>Line Chart Demo</h1>
           {this.state.lineChart}
 
           {this.state.showTooltip ? (
@@ -329,6 +334,7 @@ class LineChart extends Component {
             />
           ) : null}
           <Button onClick={this.handelSubmit}>Submit</Button>
+          <Button onClick={this.handelReset}>Reset</Button>
         </Main>
       </div>
     );

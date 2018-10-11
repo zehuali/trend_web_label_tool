@@ -2,19 +2,48 @@ import React, { Component } from "react";
 import styled from "styled-components";
 
 const Title = styled.h2`
-  font-size: 1em;
-  text-align: center;
-  color: palevioletred;
+  font-size: 1.5em;
+  text-align: left;
+  color: DimGrey;
 `;
 
 const Container = styled.div`
   top: ${prop => prop.posi.top};
   left: ${prop => prop.posi.left};
-  background-color: papayawhip;
+  background-color: GhostWhite;
   position: absolute;
-  opacity: 0.8;
+  opacity: 0.98;
   border-radius: 5px;
-  padding: 10px;
+  padding: 0px 10px;
+`;
+
+const Save = styled.button`
+  font-size: 1em;
+  margin: 0 0.25em;
+  padding: 0.25em 1em;
+  background-color: #e7e7e7;
+  color: black;
+  border-radius: 4px;
+`;
+
+const InputBox = styled.input`
+  background: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  margin: 0 0.25em;
+  outline: 0;
+  padding: 7px;
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  background-color: #e8eeef;
+  -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03) inset;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03) inset;
+  margin-bottom: 30px;
+  :focus {
+    background: #d2d9dd;
+  }
 `;
 
 class Popup extends Component {
@@ -50,8 +79,8 @@ class Popup extends Component {
         posi={{ top: this.props.top + "px", left: this.props.left + "px" }}
       >
         <Title>Label it:</Title>
-        <input value={this.state.value} onChange={this.handleChange} />
-        <button onClick={this.handelSubmit}>save</button>
+        <InputBox value={this.state.value} onChange={this.handleChange} />
+        <Save onClick={this.handelSubmit}>save</Save>
       </Container>
     );
   }
