@@ -64,9 +64,11 @@ class LineChart extends Component {
     answer: [],
     studentAnswer: "",
     answersList: [],
+    comments: [],
     lineChart: null,
     datasets: [],
     setindex: 0,
+    role: "student",
     charopt: {
       responsive: true,
       scales: {
@@ -76,7 +78,7 @@ class LineChart extends Component {
               display: false
             },
             ticks: {
-              display: false
+              display: true
             }
           }
         ],
@@ -167,6 +169,7 @@ class LineChart extends Component {
     this.handelSubmit = this.handelSubmit.bind(this);
     this.handelSidenavClick = this.handelSidenavClick.bind(this);
     this.getText = this.getText.bind(this);
+    this.getComment = this.getComment.bind(this);
   }
 
   componentDidMount() {
@@ -228,6 +231,39 @@ class LineChart extends Component {
     this.forceUpdate();
     console.log("aa,", this);
   }
+
+  getComment(comment, result) {
+    let review = {
+      x: this.state.xAxis,
+      y: this.state.yAxis,
+      result: result,
+      comment: comment,
+      dataset: this.state.setindex
+    };
+
+    console.log("review", review);
+    fetch("http://zehuali.com/data/grade", {
+      method: "POST",
+      headers: {
+        "cache-control": "no-cache",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify([review])
+    });
+    this.state.comments.push(review);
+  }
+
+  handelSubmit = () => {
+    fetch("http://zehuali.com/data/answer", {
+      method: "POST",
+      headers: {
+        "cache-control": "no-cache",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(this.state.answer)
+    });
+    console.log(this.state.answer);
+  };
 
   handelSubmit = () => {
     fetch("http://zehuali.com/data/answer", {
@@ -330,7 +366,7 @@ class LineChart extends Component {
               top={this.state.top}
               left={this.state.left}
               answer={this.state.studentAnswer}
-              // getText={this.getText}
+              getComment={this.getComment}
             />
           ) : null}
           <Button onClick={this.handelSubmit}>Submit</Button>

@@ -72,6 +72,7 @@ class ReviewBox extends Component {
     super(props);
     this.state = {
       value: "",
+      result: true,
       rightActive: false,
       wrongActive: false,
       top: 0,
@@ -82,18 +83,20 @@ class ReviewBox extends Component {
   }
 
   handelSubmit = () => {
-    this.props.getText(this.state.value);
+    this.props.getComment(this.state.value, this.state.result);
   };
   clickRight = () => {
     this.setState({
       rightActive: true,
-      wrongActive: false
+      wrongActive: false,
+      result: true
     });
   };
   clickWrong = () => {
     this.setState({
       rightActive: false,
-      wrongActive: true
+      wrongActive: true,
+      result: false
     });
   };
   handleChange(event) {
@@ -110,7 +113,7 @@ class ReviewBox extends Component {
       this.state.top = this.props.top;
       this.state.left = this.props.left;
     }
-    console.log(this.props);
+    // console.log(this.props);
     return (
       <Container
         posi={{ top: this.props.top + "px", left: this.props.left + "px" }}
