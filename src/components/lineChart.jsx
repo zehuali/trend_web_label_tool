@@ -68,7 +68,7 @@ class LineChart extends Component {
     lineChart: null,
     datasets: [],
     setindex: 0,
-    role: "student",
+    role: "Student",
     charopt: {
       responsive: true,
       scales: {
@@ -283,6 +283,18 @@ class LineChart extends Component {
     });
   };
 
+  handelStudent = () => {
+    this.setState({
+      role: "Student"
+    });
+  };
+
+  handelGrader = () => {
+    this.setState({
+      role: "Grader"
+    });
+  };
+
   handelSidenavClick = value => {
     this.state.showReviewBox = true;
     this.state.showTooltip = false;
@@ -333,17 +345,27 @@ class LineChart extends Component {
     return (
       <div>
         <SideNav>
-          {this.state.answersList.map((value, index, array) => (
-            <Item value={value} onClick={() => this.handelSidenavClick(value)}>
-              Answer: {value.answer}
-            </Item>
-          ))}
+          {this.state.role.toLowerCase() === "grader"
+            ? this.state.answersList.map((value, index, array) => (
+                <Item
+                  value={value}
+                  onClick={() => this.handelSidenavClick(value)}
+                >
+                  Answer: {value.answer}
+                </Item>
+              ))
+            : null}
           <hr />
-          {this.state.answer.map((value, index, array) => (
-            <Item value={value} onClick={() => this.handelSidenavClick(value)}>
-              Answer: {value.answer}
-            </Item>
-          ))}
+          {this.state.role.toLowerCase() === "student"
+            ? this.state.answer.map((value, index, array) => (
+                <Item
+                  value={value}
+                  onClick={() => this.handelSidenavClick(value)}
+                >
+                  Answer: {value.answer}
+                </Item>
+              ))
+            : null}
           <br />
           <br />
           <br />
@@ -351,6 +373,9 @@ class LineChart extends Component {
         </SideNav>
         <Main id="main">
           <h1>Line Chart Demo</h1>
+          <h3>Current Role: {this.state.role}</h3>
+          <Button onClick={this.handelStudent}>Student</Button>
+          <Button onClick={this.handelGrader}>Grader</Button>
           {this.state.lineChart}
 
           {this.state.showTooltip ? (
