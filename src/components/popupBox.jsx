@@ -65,11 +65,12 @@ class Popup extends Component {
     this.setState({ value: event.target.value });
   }
   render() {
+    console.log("props", this.props);
     if (
       this.props.top != this.state.top ||
       this.props.left != this.state.left
     ) {
-      this.state.value = "";
+      this.state.value = this.props.value ? this.props.value : "";
       this.state.top = this.props.top;
       this.state.left = this.props.left;
     }

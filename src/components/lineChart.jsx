@@ -68,6 +68,7 @@ class LineChart extends Component {
     labels: [],
     showTooltip: false,
     showReviewBox: false,
+    showEditTooltip: false,
     data: [],
     labels: [],
     answer: [],
@@ -84,7 +85,7 @@ class LineChart extends Component {
     super(props);
 
     this.handelSubmit = this.handelSubmit.bind(this);
-    this.handelSidenavClick = this.handelSidenavClick.bind(this);
+    // this.handelSidenavClick = this.handelSidenavClick.bind(this);
     this.getText = this.getText.bind(this);
     this.getComment = this.getComment.bind(this);
     this.handelZoom = this.handelZoom.bind(this);
@@ -140,6 +141,16 @@ class LineChart extends Component {
   }
 
   getText(text) {
+    for (let i = 0; i < this.state.answer.length; i++) {
+      if (
+        this.state.answer[i].x == this.state.xAxis &&
+        this.state.answer[i].y == this.state.yAxis
+      ) {
+        this.state.answer[i].answer = text;
+        this.forceUpdate();
+        return;
+      }
+    }
     this.state.answer.push({
       x: this.state.xAxis,
       y: this.state.yAxis,
@@ -229,7 +240,6 @@ class LineChart extends Component {
           left: position.left + x - 10,
           answer: value.answer
         };
-        console.log("aaaa", answer);
         answerPoints.push(answer);
         // return answer;
       });
@@ -237,11 +247,36 @@ class LineChart extends Component {
     return answerPoints;
   };
 
-  handelSidenavClick = value => {
-    this.state.showReviewBox = true;
-    this.state.showTooltip = false;
-    console.log("event", value);
-    console.log(this);
+  // handelSidenavClick = value => {
+  //   this.state.showReviewBox = true;
+  //   this.state.showTooltip = false;
+  //   console.log("event", value);
+  //   console.log(this);
+  //   const meta = this.refs.chart.chartInstance.getDatasetMeta(value.dataset);
+  //   const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
+  //   let x = meta.data[value.x]._model.x;
+  //   let y = meta.data[value.x]._model.y;
+  //   console.log(x + "px");
+
+  //   this.setState({
+  //     xAxis: value.x,
+  //     yAxis: value.y,
+  //     top: position.top + y,
+  //     left: position.left + x,
+  //     studentAnswer: value.answer
+  //   });
+  // };
+
+  handelDotClick = (value, role) => {
+    if (role.toLowerCase() === "student") {
+      this.state.showEditTooltip = true;
+      this.state.showReviewBox = false;
+      this.state.showTooltip = false;
+    } else {
+      this.state.showEditTooltip = false;
+      this.state.showReviewBox = true;
+      this.state.showTooltip = false;
+    }
     const meta = this.refs.chart.chartInstance.getDatasetMeta(value.dataset);
     const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
     let x = meta.data[value.x]._model.x;
@@ -345,12 +380,16 @@ class LineChart extends Component {
             console.log("hide");
             this.setState({
               showTooltip: false,
-              showReviewBox: false
+              showReviewBox: false,
+              showEditTooltip: false
             });
             return;
           } else {
-            this.state.showTooltip = true;
-            this.state.showReviewBox = false;
+            this.setState({
+              showTooltip: true,
+              showReviewBox: false,
+              showEditTooltip: false
+            });
           }
           console.log(tooltipModel);
           let idx = tooltipModel.dataPoints[0].datasetIndex;
@@ -382,7 +421,7 @@ class LineChart extends Component {
             ? this.state.answersList.map((value, index, array) => (
                 <Item
                   value={value}
-                  onClick={() => this.handelSidenavClick(value)}
+                  onClick={() => this.handelDotClick(value, "teacher")}
                 >
                   Answer: {value.answer}
                 </Item>
@@ -393,7 +432,7 @@ class LineChart extends Component {
             ? this.state.answer.map((value, index, array) => (
                 <Item
                   value={value}
-                  onClick={() => this.handelSidenavClick(value)}
+                  onClick={() => this.handelDotClick(value, "student")}
                 >
                   Answer: {value.answer}
                 </Item>
@@ -418,6 +457,14 @@ class LineChart extends Component {
               getText={this.getText}
             />
           ) : null}
+          {this.state.showEditTooltip ? (
+            <Popup
+              top={this.state.top}
+              left={this.state.left}
+              value={this.state.studentAnswer}
+              getText={this.getText}
+            />
+          ) : null}
 
           {this.state.showReviewBox ? (
             <ReviewBox
@@ -432,7 +479,7 @@ class LineChart extends Component {
                 <Point
                   posi={{ top: value.top + "px", left: value.left + "px" }}
                   value={value}
-                  onClick={() => this.handelSidenavClick(value)}
+                  onClick={() => this.handelDotClick(value, "teacher")}
                 />
               ))
             : null}
@@ -441,7 +488,7 @@ class LineChart extends Component {
                 <Point
                   posi={{ top: value.top + "px", left: value.left + "px" }}
                   value={value}
-                  onClick={() => this.handelSidenavClick(value)}
+                  onClick={() => this.handelDotClick(value, "student")}
                 />
               ))
             : null}
