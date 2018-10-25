@@ -50,6 +50,15 @@ const SideNav = styled.div`
   padding-top: 20px;
 `;
 
+const Point = styled.button`
+  top: ${prop => prop.posi.top};
+  left: ${prop => prop.posi.left};
+  background-color: red;
+  position: absolute;
+  padding: 7px;
+  border-radius: 50%;
+`;
+
 class LineChart extends Component {
   state = {
     top: 0,
@@ -68,99 +77,7 @@ class LineChart extends Component {
     lineChart: null,
     datasets: [],
     setindex: 0,
-    role: "Student",
-    charopt: {
-      responsive: true,
-      scales: {
-        xAxes: [
-          {
-            gridLines: {
-              display: false
-            },
-            ticks: {
-              display: true
-            }
-          }
-        ],
-        yAxes: [
-          {
-            gridLines: {
-              display: false
-            },
-            ticks: {
-              display: false
-            }
-          }
-        ]
-      },
-      // Container for pan options
-      pan: {
-        // Boolean to enable panning
-        enabled: false,
-
-        // Panning directions. Remove the appropriate direction to disable
-        // Eg. 'y' would only allow panning in the y direction
-        mode: "xy"
-        // Function called once panning is completed
-        // Useful for dynamic data loading
-      },
-
-      // Container for zoom options
-      zoom: {
-        // Boolean to enable zooming
-        enabled: true,
-        sensitivity: 0.1,
-        drag: false,
-
-        // Zooming directions. Remove the appropriate direction to disable
-        // Eg. 'y' would only allow zooming in the y direction
-        mode: "x",
-        limits: {
-          max: 100,
-          min: 50
-        },
-
-        onZoom: function(showTooltip, showReviewBox) {
-          console.log("I was zoomed!!!");
-          console.log(this);
-          showTooltip = false;
-          showReviewBox = false;
-        },
-        showTooltip: false,
-        showReviewBox: false
-      },
-      events: ["click"],
-      tooltips: {
-        enabled: false,
-        // mode: "x",
-        custom: tooltipModel => {
-          // hide the tooltip
-          if (tooltipModel.opacity === 0) {
-            console.log("hide");
-            this.setState({
-              showTooltip: false,
-              showReviewBox: false
-            });
-            return;
-          } else {
-            this.state.showTooltip = true;
-            this.state.showReviewBox = false;
-          }
-          console.log(tooltipModel);
-          let idx = tooltipModel.dataPoints[0].datasetIndex;
-          const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
-          // set position of tooltip
-          this.setState({
-            xAxis: Number(tooltipModel.dataPoints[0].xLabel),
-            yAxis: tooltipModel.dataPoints[0].yLabel,
-            top: position.top + tooltipModel.caretY,
-            left: position.left + tooltipModel.caretX,
-            setindex: idx
-          });
-          // console.log(position.left + tooltipModel.caretX);
-        }
-      }
-    }
+    role: "Student"
   };
 
   constructor(props) {
@@ -170,10 +87,11 @@ class LineChart extends Component {
     this.handelSidenavClick = this.handelSidenavClick.bind(this);
     this.getText = this.getText.bind(this);
     this.getComment = this.getComment.bind(this);
+    this.handelZoom = this.handelZoom.bind(this);
   }
 
   componentDidMount() {
-    fetch("http://zehuali.com/data")
+    fetch("http://zehuali.com:3001/data")
       .then(res => res.json())
       .then(
         result => {
@@ -203,7 +121,7 @@ class LineChart extends Component {
           });
         }
       );
-    fetch("http://zehuali.com/data/answer")
+    fetch("http://zehuali.com:3001/data/answer")
       .then(res => res.json())
       .then(
         result => {
@@ -242,7 +160,7 @@ class LineChart extends Component {
     };
 
     console.log("review", review);
-    fetch("http://zehuali.com/data/grade", {
+    fetch("http://zehuali.com:3001/data/grade", {
       method: "POST",
       headers: {
         "cache-control": "no-cache",
@@ -254,7 +172,7 @@ class LineChart extends Component {
   }
 
   handelSubmit = () => {
-    fetch("http://zehuali.com/data/answer", {
+    fetch("http://zehuali.com:3001/data/answer", {
       method: "POST",
       headers: {
         "cache-control": "no-cache",
@@ -266,7 +184,7 @@ class LineChart extends Component {
   };
 
   handelSubmit = () => {
-    fetch("http://zehuali.com/data/answer", {
+    fetch("http://zehuali.com:3001/data/answer", {
       method: "POST",
       headers: {
         "cache-control": "no-cache",
@@ -275,6 +193,14 @@ class LineChart extends Component {
       body: JSON.stringify(this.state.answer)
     });
     console.log(this.state.answer);
+  };
+
+  handelZoom = () => {
+    this.setState({
+      showTooltip: false,
+      showReviewBox: false
+    });
+    this.forceUpdate();
   };
 
   handelReset = () => {
@@ -338,10 +264,125 @@ class LineChart extends Component {
         };
       })
     };
+
+    let charopt = {
+      responsive: true,
+      animation: false,
+      scales: {
+        xAxes: [
+          {
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          }
+        ],
+        yAxes: [
+          {
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              display: false
+            }
+          }
+        ]
+      },
+      // Container for pan options
+      pan: {
+        // Boolean to enable panning
+        enabled: false,
+
+        // Panning directions. Remove the appropriate direction to disable
+        // Eg. 'y' would only allow panning in the y direction
+        mode: "xy"
+        // Function called once panning is completed
+        // Useful for dynamic data loading
+      },
+
+      // Container for zoom options
+      zoom: {
+        // Boolean to enable zooming
+        enabled: true,
+        sensitivity: 0.1,
+        drag: false,
+
+        // Zooming directions. Remove the appropriate direction to disable
+        // Eg. 'y' would only allow zooming in the y direction
+        mode: "x",
+        limits: {
+          max: 100,
+          min: 50
+        },
+
+        onZoom: this.handelZoom
+      },
+      events: ["click"],
+      tooltips: {
+        enabled: false,
+        // mode: "x",
+        custom: tooltipModel => {
+          // hide the tooltip
+          if (tooltipModel.opacity === 0) {
+            console.log("hide");
+            this.setState({
+              showTooltip: false,
+              showReviewBox: false
+            });
+            return;
+          } else {
+            this.state.showTooltip = true;
+            this.state.showReviewBox = false;
+          }
+          console.log(tooltipModel);
+          let idx = tooltipModel.dataPoints[0].datasetIndex;
+          const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
+          // set position of tooltip
+          this.setState({
+            xAxis: Number(tooltipModel.dataPoints[0].xLabel),
+            yAxis: tooltipModel.dataPoints[0].yLabel,
+            top: position.top + tooltipModel.caretY,
+            left: position.left + tooltipModel.caretX,
+            setindex: idx
+          });
+          // console.log(position.left + tooltipModel.caretX);
+        }
+      }
+    };
+
     this.state.lineChart = (
-      <Line data={chartData} options={this.state.charopt} ref="chart" />
+      <Line data={chartData} options={charopt} ref="chart" />
     );
-    console.log("this", this);
+    let answerPoints = [];
+    console.log(this.state.answersList);
+    if (this.refs.chart != null && this.refs.chart.chartInstance != null) {
+      this.state.answersList.forEach(value => {
+        const meta = this.refs.chart.chartInstance.getDatasetMeta(
+          value.dataset
+        );
+        const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
+        let x = meta.data[value.x]._model.x;
+        let y = meta.data[value.x]._model.y;
+
+        let answer = {
+          x: value.x,
+          y: value.y,
+          dataset: value.dataset,
+          top: position.top + y - 10,
+          left: position.left + x - 10,
+          answer: value.answer
+        };
+        console.log("aaaa", answer);
+        answerPoints.push(answer);
+        return answer;
+      });
+
+      console.log("render points", answerPoints);
+      console.log("this", this);
+    }
+
     return (
       <div>
         <SideNav>
@@ -394,6 +435,15 @@ class LineChart extends Component {
               getComment={this.getComment}
             />
           ) : null}
+          {this.state.role.toLowerCase() === "grader"
+            ? answerPoints.map(value => (
+                <Point
+                  posi={{ top: value.top + "px", left: value.left + "px" }}
+                  value={value}
+                  onClick={() => this.handelSidenavClick(value)}
+                />
+              ))
+            : null}
           <Button onClick={this.handelSubmit}>Submit</Button>
           <Button onClick={this.handelReset}>Reset</Button>
         </Main>

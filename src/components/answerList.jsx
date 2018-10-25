@@ -40,7 +40,7 @@ class answerList extends Component {
   }
 
   componentDidMount() {
-    fetch("http://zehuali.com/data/answer")
+    fetch("http://zehuali.com:3001/data/answer")
       .then(res => res.json())
       .then(
         result => {
