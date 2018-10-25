@@ -183,18 +183,6 @@ class LineChart extends Component {
     console.log(this.state.answer);
   };
 
-  handelSubmit = () => {
-    fetch("http://zehuali.com:3001/data/answer", {
-      method: "POST",
-      headers: {
-        "cache-control": "no-cache",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(this.state.answer)
-    });
-    console.log(this.state.answer);
-  };
-
   handelZoom = () => {
     this.setState({
       showTooltip: false,
@@ -215,10 +203,38 @@ class LineChart extends Component {
     });
   };
 
-  handelGrader = () => {
+  handelTeacher = () => {
     this.setState({
-      role: "Grader"
+      role: "Teacher"
     });
+  };
+
+  getAnswerPoints = answers => {
+    let answerPoints = [];
+    console.log(this.state.answersList);
+    if (this.refs.chart != null && this.refs.chart.chartInstance != null) {
+      answers.forEach(value => {
+        const meta = this.refs.chart.chartInstance.getDatasetMeta(
+          value.dataset
+        );
+        const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
+        let x = meta.data[value.x]._model.x;
+        let y = meta.data[value.x]._model.y;
+
+        let answer = {
+          x: value.x,
+          y: value.y,
+          dataset: value.dataset,
+          top: position.top + y - 10,
+          left: position.left + x - 10,
+          answer: value.answer
+        };
+        console.log("aaaa", answer);
+        answerPoints.push(answer);
+        // return answer;
+      });
+    }
+    return answerPoints;
   };
 
   handelSidenavClick = value => {
@@ -355,38 +371,14 @@ class LineChart extends Component {
     this.state.lineChart = (
       <Line data={chartData} options={charopt} ref="chart" />
     );
-    let answerPoints = [];
-    console.log(this.state.answersList);
-    if (this.refs.chart != null && this.refs.chart.chartInstance != null) {
-      this.state.answersList.forEach(value => {
-        const meta = this.refs.chart.chartInstance.getDatasetMeta(
-          value.dataset
-        );
-        const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
-        let x = meta.data[value.x]._model.x;
-        let y = meta.data[value.x]._model.y;
-
-        let answer = {
-          x: value.x,
-          y: value.y,
-          dataset: value.dataset,
-          top: position.top + y - 10,
-          left: position.left + x - 10,
-          answer: value.answer
-        };
-        console.log("aaaa", answer);
-        answerPoints.push(answer);
-        return answer;
-      });
-
-      console.log("render points", answerPoints);
-      console.log("this", this);
-    }
+    // answer points for teacher.
+    let answerPoints = this.getAnswerPoints(this.state.answersList);
+    let studentAnswerPoints = this.getAnswerPoints(this.state.answer);
 
     return (
       <div>
         <SideNav>
-          {this.state.role.toLowerCase() === "grader"
+          {this.state.role.toLowerCase() === "teacher"
             ? this.state.answersList.map((value, index, array) => (
                 <Item
                   value={value}
@@ -416,7 +408,7 @@ class LineChart extends Component {
           <h1>Line Chart Demo</h1>
           <h3>Current Role: {this.state.role}</h3>
           <Button onClick={this.handelStudent}>Student</Button>
-          <Button onClick={this.handelGrader}>Grader</Button>
+          <Button onClick={this.handelTeacher}>Teacher</Button>
           {this.state.lineChart}
 
           {this.state.showTooltip ? (
@@ -435,8 +427,17 @@ class LineChart extends Component {
               getComment={this.getComment}
             />
           ) : null}
-          {this.state.role.toLowerCase() === "grader"
+          {this.state.role.toLowerCase() === "teacher"
             ? answerPoints.map(value => (
+                <Point
+                  posi={{ top: value.top + "px", left: value.left + "px" }}
+                  value={value}
+                  onClick={() => this.handelSidenavClick(value)}
+                />
+              ))
+            : null}
+          {this.state.role.toLowerCase() === "student"
+            ? studentAnswerPoints.map(value => (
                 <Point
                   posi={{ top: value.top + "px", left: value.left + "px" }}
                   value={value}
