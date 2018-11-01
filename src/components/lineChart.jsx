@@ -71,7 +71,7 @@ class LineChart extends Component {
     showEditTooltip: false,
     data: [],
     labels: [],
-    answer: [],
+    gradesList: [],
     studentAnswer: "",
     answersList: [],
     comments: [],
@@ -84,7 +84,7 @@ class LineChart extends Component {
   constructor(props) {
     super(props);
 
-    this.handelSubmit = this.handelSubmit.bind(this);
+    // this.handelSubmit = this.handelSubmit.bind(this);
     // this.handelSidenavClick = this.handelSidenavClick.bind(this);
     this.getText = this.getText.bind(this);
     this.getComment = this.getComment.bind(this);
@@ -138,6 +138,22 @@ class LineChart extends Component {
           console.log(error);
         }
       );
+    fetch("http://zehuali.com:3001/data/grade")
+      .then(res => res.json())
+      .then(
+        result => {
+          console.log(result);
+          this.setState({
+            gradesList: result
+          });
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+        error => {
+          console.log(error);
+        }
+      );
   }
 
   getText(text) {
@@ -151,14 +167,28 @@ class LineChart extends Component {
         return;
       }
     }
-    this.state.answer.push({
+    this.state.answersList.push({
       x: this.state.xAxis,
       y: this.state.yAxis,
       answer: text,
       dataset: this.state.setindex
     });
     this.forceUpdate();
+    let toUpload = {
+      x: this.state.xAxis,
+      y: this.state.yAxis,
+      answer: text,
+      dataset: this.state.setindex
+    };
     console.log("aa,", this);
+    fetch("http://zehuali.com:3001/data/answer", {
+      method: "POST",
+      headers: {
+        "cache-control": "no-cache",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(toUpload)
+    });
   }
 
   getComment(comment, result) {
@@ -177,36 +207,37 @@ class LineChart extends Component {
         "cache-control": "no-cache",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify([review])
+      body: JSON.stringify(review)
     });
     this.state.comments.push(review);
   }
 
-  handelSubmit = () => {
-    fetch("http://zehuali.com:3001/data/answer", {
-      method: "POST",
-      headers: {
-        "cache-control": "no-cache",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(this.state.answer)
-    });
-    console.log(this.state.answer);
-  };
+  // handelSubmit = () => {
+  //   fetch("http://zehuali.com:3001/data/answer", {
+  //     method: "POST",
+  //     headers: {
+  //       "cache-control": "no-cache",
+  //       "Content-Type": "application/json"
+  //     },
+  //     body: JSON.stringify(this.state.answer)
+  //   });
+  //   console.log(this.state.answer);
+  // };
 
   handelZoom = () => {
     this.setState({
       showTooltip: false,
-      showReviewBox: false
+      showReviewBox: false,
+      showEditTooltip: false
     });
     this.forceUpdate();
   };
 
-  handelReset = () => {
-    this.setState({
-      answer: []
-    });
-  };
+  // handelReset = () => {
+  //   this.setState({
+  //     answer: []
+  //   });
+  // };
 
   handelStudent = () => {
     this.setState({
@@ -288,7 +319,8 @@ class LineChart extends Component {
       yAxis: value.y,
       top: position.top + y,
       left: position.left + x,
-      studentAnswer: value.answer
+      studentAnswer: value.answer,
+      setindex: value.dataset
     });
   };
 
@@ -412,32 +444,19 @@ class LineChart extends Component {
     );
     // answer points for teacher.
     let answerPoints = this.getAnswerPoints(this.state.answersList);
-    let studentAnswerPoints = this.getAnswerPoints(this.state.answer);
+    // let studentAnswerPoints = this.getAnswerPoints(this.state.answer);
 
     return (
       <div>
         <SideNav>
-          {this.state.role.toLowerCase() === "teacher"
-            ? this.state.answersList.map((value, index, array) => (
-                <Item
-                  value={value}
-                  onClick={() => this.handelDotClick(value, "teacher")}
-                >
-                  Answer: {value.answer}
-                </Item>
-              ))
-            : null}
-          <hr />
-          {this.state.role.toLowerCase() === "student"
-            ? this.state.answer.map((value, index, array) => (
-                <Item
-                  value={value}
-                  onClick={() => this.handelDotClick(value, "student")}
-                >
-                  Answer: {value.answer}
-                </Item>
-              ))
-            : null}
+          {this.state.answersList.map((value, index, array) => (
+            <Item
+              value={value}
+              onClick={() => this.handelDotClick(value, this.state.role)}
+            >
+              Answer: {value.answer}
+            </Item>
+          ))}
           <br />
           <br />
           <br />
@@ -474,26 +493,13 @@ class LineChart extends Component {
               getComment={this.getComment}
             />
           ) : null}
-          {this.state.role.toLowerCase() === "teacher"
-            ? answerPoints.map(value => (
-                <Point
-                  posi={{ top: value.top + "px", left: value.left + "px" }}
-                  value={value}
-                  onClick={() => this.handelDotClick(value, "teacher")}
-                />
-              ))
-            : null}
-          {this.state.role.toLowerCase() === "student"
-            ? studentAnswerPoints.map(value => (
-                <Point
-                  posi={{ top: value.top + "px", left: value.left + "px" }}
-                  value={value}
-                  onClick={() => this.handelDotClick(value, "student")}
-                />
-              ))
-            : null}
-          <Button onClick={this.handelSubmit}>Submit</Button>
-          <Button onClick={this.handelReset}>Reset</Button>
+          {answerPoints.map(value => (
+            <Point
+              posi={{ top: value.top + "px", left: value.left + "px" }}
+              value={value}
+              onClick={() => this.handelDotClick(value, this.state.role)}
+            />
+          ))}
         </Main>
       </div>
     );
