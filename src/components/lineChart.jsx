@@ -5,6 +5,7 @@ import styled from "styled-components";
 import localdata from "../data/data";
 import colors from "../data/color";
 import ReviewBox from "./reviewBox";
+import CommentBox from "./commentBox";
 import * as zoom from "chartjs-plugin-zoom";
 
 const Button = styled.button`
@@ -59,6 +60,10 @@ const Point = styled.button`
   border-radius: 50%;
 `;
 
+const GreenPoint = styled(Point)`
+  background-color: green;
+`;
+
 class LineChart extends Component {
   state = {
     top: 0,
@@ -69,12 +74,15 @@ class LineChart extends Component {
     showTooltip: false,
     showReviewBox: false,
     showEditTooltip: false,
+    showCommentBox: false,
     data: [],
     labels: [],
     gradesList: [],
     studentAnswer: "",
     answersList: [],
     comments: [],
+    comment: "",
+    result: "",
     lineChart: null,
     datasets: [],
     setindex: 0,
@@ -195,6 +203,7 @@ class LineChart extends Component {
     let review = {
       x: this.state.xAxis,
       y: this.state.yAxis,
+      answer: this.state.studentAnswer,
       result: result,
       comment: comment,
       dataset: this.state.setindex
@@ -228,7 +237,8 @@ class LineChart extends Component {
     this.setState({
       showTooltip: false,
       showReviewBox: false,
-      showEditTooltip: false
+      showEditTooltip: false,
+      showCommentBox: false
     });
     this.forceUpdate();
   };
@@ -241,17 +251,25 @@ class LineChart extends Component {
 
   handelStudent = () => {
     this.setState({
-      role: "Student"
+      role: "Student",
+      showTooltip: false,
+      showReviewBox: false,
+      showEditTooltip: false,
+      showCommentBox: false
     });
   };
 
   handelTeacher = () => {
     this.setState({
-      role: "Teacher"
+      role: "Teacher",
+      showTooltip: false,
+      showReviewBox: false,
+      showEditTooltip: false,
+      showCommentBox: false
     });
   };
 
-  getAnswerPoints = answers => {
+  getAnswerPoints = (answers, color) => {
     let answerPoints = [];
     console.log(this.state.answersList);
     if (this.refs.chart != null && this.refs.chart.chartInstance != null) {
@@ -269,7 +287,9 @@ class LineChart extends Component {
           dataset: value.dataset,
           top: position.top + y - 10,
           left: position.left + x - 10,
-          answer: value.answer
+          answer: value.answer,
+          comment: value.comment,
+          result: value.result
         };
         answerPoints.push(answer);
         // return answer;
@@ -300,27 +320,44 @@ class LineChart extends Component {
 
   handelDotClick = (value, role) => {
     if (role.toLowerCase() === "student") {
-      this.state.showEditTooltip = true;
-      this.state.showReviewBox = false;
-      this.state.showTooltip = false;
+      if (value.result) {
+        this.state.showEditTooltip = false;
+        this.state.showReviewBox = false;
+        this.state.showTooltip = false;
+        this.state.showCommentBox = true;
+      } else {
+        this.state.showEditTooltip = true;
+        this.state.showReviewBox = false;
+        this.state.showTooltip = false;
+        this.state.showCommentBox = false;
+      }
     } else {
       this.state.showEditTooltip = false;
       this.state.showReviewBox = true;
       this.state.showTooltip = false;
+      this.state.showCommentBox = false;
     }
     const meta = this.refs.chart.chartInstance.getDatasetMeta(value.dataset);
     const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
     let x = meta.data[value.x]._model.x;
     let y = meta.data[value.x]._model.y;
-    console.log(x + "px");
-
+    console.log("111", value);
+    // if (value.result) {
+    //   this.state.comment = value.comment;
+    //   this.state.result = value.result;
+    // } else {
+    //   this.state.comment = "";
+    //   this.state.result = "";
+    // }
     this.setState({
       xAxis: value.x,
       yAxis: value.y,
       top: position.top + y,
       left: position.left + x,
       studentAnswer: value.answer,
-      setindex: value.dataset
+      setindex: value.dataset,
+      comment: value.comment,
+      result: value.result
     });
   };
 
@@ -413,14 +450,16 @@ class LineChart extends Component {
             this.setState({
               showTooltip: false,
               showReviewBox: false,
-              showEditTooltip: false
+              showEditTooltip: false,
+              showCommentBox: false
             });
             return;
           } else {
             this.setState({
               showTooltip: true,
               showReviewBox: false,
-              showEditTooltip: false
+              showEditTooltip: false,
+              showCommentBox: false
             });
           }
           console.log(tooltipModel);
@@ -443,8 +482,8 @@ class LineChart extends Component {
       <Line data={chartData} options={charopt} ref="chart" />
     );
     // answer points for teacher.
-    let answerPoints = this.getAnswerPoints(this.state.answersList);
-    // let studentAnswerPoints = this.getAnswerPoints(this.state.answer);
+    let answerPoints = this.getAnswerPoints(this.state.answersList, "green");
+    let gradePoints = this.getAnswerPoints(this.state.gradesList, "red");
 
     return (
       <div>
@@ -500,6 +539,23 @@ class LineChart extends Component {
               onClick={() => this.handelDotClick(value, this.state.role)}
             />
           ))}
+          {gradePoints.map(value => (
+            <GreenPoint
+              posi={{ top: value.top + "px", left: value.left + "px" }}
+              value={value}
+              onClick={() => this.handelDotClick(value, this.state.role)}
+            />
+          ))}
+          {this.state.showCommentBox ? (
+            <CommentBox
+              top={this.state.top}
+              left={this.state.left}
+              answer={this.state.studentAnswer}
+              getComment={this.getComment}
+              comment={this.state.comment}
+              result={this.state.result}
+            />
+          ) : null}
         </Main>
       </div>
     );

@@ -89,14 +89,14 @@ class ReviewBox extends Component {
     this.setState({
       rightActive: true,
       wrongActive: false,
-      result: true
+      result: "✔"
     });
   };
   clickWrong = () => {
     this.setState({
       rightActive: false,
       wrongActive: true,
-      result: false
+      result: "✖"
     });
   };
   handleChange(event) {
