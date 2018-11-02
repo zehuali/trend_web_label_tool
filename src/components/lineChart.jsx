@@ -19,42 +19,13 @@ const Button = styled.button`
 `;
 
 const Main = styled.div`
-  margin-left: 160px;
-`;
-
-const Item = styled.div`
-  font-size: 1em;
-  text-align: center;
-  color: white;
-  padding: 6px 8px 6px 16px;
-  text-decoration: none;
-  display: block;
-  :hover {
-    color: white;
-    background: gray;
-  }
-  :active {
-    color: #d0cfcf;
-    background: gray;
-  }
-`;
-
-const SideNav = styled.div`
-  height: 100%;
-  width: 160px;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  background-color: #3f3f3f;
-  overflow-x: hidden;
-  padding-top: 20px;
+  margin: 0em 0em 1em 0em;
 `;
 
 const Point = styled.button`
   top: ${prop => prop.posi.top};
   left: ${prop => prop.posi.left};
-  background-color: red;
+  background-color: ${prop => prop.bcolor};
   position: absolute;
   padding: 7px;
   border-radius: 50%;
@@ -92,8 +63,6 @@ class LineChart extends Component {
   constructor(props) {
     super(props);
 
-    // this.handelSubmit = this.handelSubmit.bind(this);
-    // this.handelSidenavClick = this.handelSidenavClick.bind(this);
     this.getText = this.getText.bind(this);
     this.getComment = this.getComment.bind(this);
     this.handelZoom = this.handelZoom.bind(this);
@@ -165,28 +134,22 @@ class LineChart extends Component {
   }
 
   getText(text) {
-    for (let i = 0; i < this.state.answer.length; i++) {
-      if (
-        this.state.answer[i].x == this.state.xAxis &&
-        this.state.answer[i].y == this.state.yAxis
-      ) {
-        this.state.answer[i].answer = text;
-        this.forceUpdate();
-        return;
-      }
-    }
-    this.state.answersList.push({
-      x: this.state.xAxis,
-      y: this.state.yAxis,
-      answer: text,
-      dataset: this.state.setindex
-    });
-    this.forceUpdate();
+    // for (let i = 0; i < this.state.answer.length; i++) {
+    //   if (
+    //     this.state.answer[i].x == this.state.xAxis &&
+    //     this.state.answer[i].y == this.state.yAxis
+    //   ) {
+    //     this.state.answer[i].answer = text;
+    //     this.forceUpdate();
+    //     return;
+    //   }
+    // }
     let toUpload = {
       x: this.state.xAxis,
       y: this.state.yAxis,
       answer: text,
-      dataset: this.state.setindex
+      dataset: this.state.setindex,
+      role: this.state.role
     };
     console.log("aa,", this);
     fetch("http://zehuali.com:3001/data/answer", {
@@ -197,6 +160,9 @@ class LineChart extends Component {
       },
       body: JSON.stringify(toUpload)
     });
+
+    this.state.answersList.push(toUpload);
+    this.forceUpdate();
   }
 
   getComment(comment, result) {
@@ -221,18 +187,6 @@ class LineChart extends Component {
     this.state.comments.push(review);
   }
 
-  // handelSubmit = () => {
-  //   fetch("http://zehuali.com:3001/data/answer", {
-  //     method: "POST",
-  //     headers: {
-  //       "cache-control": "no-cache",
-  //       "Content-Type": "application/json"
-  //     },
-  //     body: JSON.stringify(this.state.answer)
-  //   });
-  //   console.log(this.state.answer);
-  // };
-
   handelZoom = () => {
     this.setState({
       showTooltip: false,
@@ -242,12 +196,6 @@ class LineChart extends Component {
     });
     this.forceUpdate();
   };
-
-  // handelReset = () => {
-  //   this.setState({
-  //     answer: []
-  //   });
-  // };
 
   handelStudent = () => {
     this.setState({
@@ -289,7 +237,8 @@ class LineChart extends Component {
           left: position.left + x - 10,
           answer: value.answer,
           comment: value.comment,
-          result: value.result
+          result: value.result,
+          role: value.role
         };
         answerPoints.push(answer);
         // return answer;
@@ -297,26 +246,6 @@ class LineChart extends Component {
     }
     return answerPoints;
   };
-
-  // handelSidenavClick = value => {
-  //   this.state.showReviewBox = true;
-  //   this.state.showTooltip = false;
-  //   console.log("event", value);
-  //   console.log(this);
-  //   const meta = this.refs.chart.chartInstance.getDatasetMeta(value.dataset);
-  //   const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
-  //   let x = meta.data[value.x]._model.x;
-  //   let y = meta.data[value.x]._model.y;
-  //   console.log(x + "px");
-
-  //   this.setState({
-  //     xAxis: value.x,
-  //     yAxis: value.y,
-  //     top: position.top + y,
-  //     left: position.left + x,
-  //     studentAnswer: value.answer
-  //   });
-  // };
 
   handelDotClick = (value, role) => {
     if (role.toLowerCase() === "student") {
@@ -342,13 +271,6 @@ class LineChart extends Component {
     let x = meta.data[value.x]._model.x;
     let y = meta.data[value.x]._model.y;
     console.log("111", value);
-    // if (value.result) {
-    //   this.state.comment = value.comment;
-    //   this.state.result = value.result;
-    // } else {
-    //   this.state.comment = "";
-    //   this.state.result = "";
-    // }
     this.setState({
       xAxis: value.x,
       yAxis: value.y,
@@ -487,20 +409,6 @@ class LineChart extends Component {
 
     return (
       <div>
-        <SideNav>
-          {this.state.answersList.map((value, index, array) => (
-            <Item
-              value={value}
-              onClick={() => this.handelDotClick(value, this.state.role)}
-            >
-              Answer: {value.answer}
-            </Item>
-          ))}
-          <br />
-          <br />
-          <br />
-          <br />
-        </SideNav>
         <Main id="main">
           <h1>Line Chart Demo</h1>
           <h3>Current Role: {this.state.role}</h3>
@@ -532,15 +440,27 @@ class LineChart extends Component {
               getComment={this.getComment}
             />
           ) : null}
-          {answerPoints.map(value => (
-            <Point
-              posi={{ top: value.top + "px", left: value.left + "px" }}
-              value={value}
-              onClick={() => this.handelDotClick(value, this.state.role)}
-            />
-          ))}
+          {answerPoints.map(
+            value =>
+              value.role.toLowerCase() == "student" ? (
+                <Point
+                  bcolor="red"
+                  posi={{ top: value.top + "px", left: value.left + "px" }}
+                  value={value}
+                  onClick={() => this.handelDotClick(value, this.state.role)}
+                />
+              ) : (
+                <Point
+                  bcolor="yellow"
+                  posi={{ top: value.top + "px", left: value.left + "px" }}
+                  value={value}
+                  onClick={() => this.handelDotClick(value, this.state.role)}
+                />
+              )
+          )}
           {gradePoints.map(value => (
-            <GreenPoint
+            <Point
+              bcolor="green"
               posi={{ top: value.top + "px", left: value.left + "px" }}
               value={value}
               onClick={() => this.handelDotClick(value, this.state.role)}
