@@ -51,7 +51,6 @@ class LineChart extends Component {
     gradesList: [],
     studentAnswer: "",
     answersList: [],
-    comments: [],
     comment: "",
     result: "",
     lineChart: null,
@@ -184,7 +183,7 @@ class LineChart extends Component {
       },
       body: JSON.stringify(review)
     });
-    this.state.comments.push(review);
+    this.state.gradesList.push(review);
   }
 
   setAllFalse = () => {
@@ -197,6 +196,7 @@ class LineChart extends Component {
 
   handelZoom = () => {
     this.setAllFalse();
+    this.forceUpdate();
     this.forceUpdate();
   };
 
@@ -249,11 +249,17 @@ class LineChart extends Component {
     if (role.toLowerCase() === "student") {
       if (value.result) {
         this.state.show.showCommentBox = true;
+      } else if (value.role.toLowerCase() == "teacher") {
+        this.state.show.showExampleBox = true;
       } else {
         this.state.show.showEditTooltip = true;
       }
     } else {
-      this.state.show.showReviewBox = true;
+      if (value.role && value.role.toLowerCase() == "teacher") {
+        this.state.show.showExampleBox = true;
+      } else {
+        this.state.show.showReviewBox = true;
+      }
     }
     const meta = this.refs.chart.chartInstance.getDatasetMeta(value.dataset);
     const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
@@ -403,6 +409,33 @@ class LineChart extends Component {
           <Button onClick={this.handelTeacher}>Teacher</Button>
           {this.state.lineChart}
 
+          {answerPoints.map(
+            value =>
+              value.role.toLowerCase() == "student" ? (
+                <Point
+                  bcolor="red"
+                  posi={{ top: value.top + "px", left: value.left + "px" }}
+                  value={value}
+                  onClick={() => this.handelDotClick(value, this.state.role)}
+                />
+              ) : (
+                <Point
+                  bcolor="yellow"
+                  posi={{ top: value.top + "px", left: value.left + "px" }}
+                  value={value}
+                  onClick={() => this.handelDotClick(value, this.state.role)}
+                />
+              )
+          )}
+          {gradePoints.map(value => (
+            <Point
+              bcolor="green"
+              posi={{ top: value.top + "px", left: value.left + "px" }}
+              value={value}
+              onClick={() => this.handelDotClick(value, this.state.role)}
+            />
+          ))}
+
           {this.state.show.showTooltip ? (
             <Popup
               top={this.state.top}
@@ -436,32 +469,6 @@ class LineChart extends Component {
             />
           ) : null}
 
-          {answerPoints.map(
-            value =>
-              value.role.toLowerCase() == "student" ? (
-                <Point
-                  bcolor="red"
-                  posi={{ top: value.top + "px", left: value.left + "px" }}
-                  value={value}
-                  onClick={() => this.handelDotClick(value, this.state.role)}
-                />
-              ) : (
-                <Point
-                  bcolor="yellow"
-                  posi={{ top: value.top + "px", left: value.left + "px" }}
-                  value={value}
-                  onClick={() => this.handelDotClick(value, this.state.role)}
-                />
-              )
-          )}
-          {gradePoints.map(value => (
-            <Point
-              bcolor="green"
-              posi={{ top: value.top + "px", left: value.left + "px" }}
-              value={value}
-              onClick={() => this.handelDotClick(value, this.state.role)}
-            />
-          ))}
           {this.state.show.showCommentBox ? (
             <CommentBox
               top={this.state.top}
