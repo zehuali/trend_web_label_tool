@@ -6,6 +6,7 @@ import localdata from "../data/data";
 import colors from "../data/color";
 import ReviewBox from "./reviewBox";
 import CommentBox from "./commentBox";
+import ExampleBox from "./exampleBox";
 import * as zoom from "chartjs-plugin-zoom";
 
 const Button = styled.button`
@@ -31,10 +32,6 @@ const Point = styled.button`
   border-radius: 50%;
 `;
 
-const GreenPoint = styled(Point)`
-  background-color: green;
-`;
-
 class LineChart extends Component {
   state = {
     top: 0,
@@ -42,10 +39,13 @@ class LineChart extends Component {
     xAxis: 0,
     yAxis: 0,
     labels: [],
-    showTooltip: false,
-    showReviewBox: false,
-    showEditTooltip: false,
-    showCommentBox: false,
+    show: {
+      showTooltip: false,
+      showReviewBox: false,
+      showEditTooltip: false,
+      showCommentBox: false,
+      showExampleBox: false
+    },
     data: [],
     labels: [],
     gradesList: [],
@@ -187,33 +187,30 @@ class LineChart extends Component {
     this.state.comments.push(review);
   }
 
+  setAllFalse = () => {
+    this.state.show.showTooltip = false;
+    this.state.show.showReviewBox = false;
+    this.state.show.showEditTooltip = false;
+    this.state.show.showCommentBox = false;
+    this.state.show.showExampleBox = false;
+  };
+
   handelZoom = () => {
-    this.setState({
-      showTooltip: false,
-      showReviewBox: false,
-      showEditTooltip: false,
-      showCommentBox: false
-    });
+    this.setAllFalse();
     this.forceUpdate();
   };
 
   handelStudent = () => {
+    this.setAllFalse();
     this.setState({
-      role: "Student",
-      showTooltip: false,
-      showReviewBox: false,
-      showEditTooltip: false,
-      showCommentBox: false
+      role: "Student"
     });
   };
 
   handelTeacher = () => {
+    this.setAllFalse();
     this.setState({
-      role: "Teacher",
-      showTooltip: false,
-      showReviewBox: false,
-      showEditTooltip: false,
-      showCommentBox: false
+      role: "Teacher"
     });
   };
 
@@ -248,23 +245,15 @@ class LineChart extends Component {
   };
 
   handelDotClick = (value, role) => {
+    this.setAllFalse();
     if (role.toLowerCase() === "student") {
       if (value.result) {
-        this.state.showEditTooltip = false;
-        this.state.showReviewBox = false;
-        this.state.showTooltip = false;
-        this.state.showCommentBox = true;
+        this.state.show.showCommentBox = true;
       } else {
-        this.state.showEditTooltip = true;
-        this.state.showReviewBox = false;
-        this.state.showTooltip = false;
-        this.state.showCommentBox = false;
+        this.state.show.showEditTooltip = true;
       }
     } else {
-      this.state.showEditTooltip = false;
-      this.state.showReviewBox = true;
-      this.state.showTooltip = false;
-      this.state.showCommentBox = false;
+      this.state.show.showReviewBox = true;
     }
     const meta = this.refs.chart.chartInstance.getDatasetMeta(value.dataset);
     const position = this.refs.chart.chartInstance.canvas.getBoundingClientRect();
@@ -369,19 +358,17 @@ class LineChart extends Component {
           // hide the tooltip
           if (tooltipModel.opacity === 0) {
             console.log("hide");
-            this.setState({
-              showTooltip: false,
-              showReviewBox: false,
-              showEditTooltip: false,
-              showCommentBox: false
-            });
+            this.setAllFalse();
             return;
           } else {
             this.setState({
-              showTooltip: true,
-              showReviewBox: false,
-              showEditTooltip: false,
-              showCommentBox: false
+              show: {
+                showTooltip: true,
+                showReviewBox: false,
+                showEditTooltip: false,
+                showCommentBox: false,
+                showExampleBox: false
+              }
             });
           }
           console.log(tooltipModel);
@@ -416,14 +403,14 @@ class LineChart extends Component {
           <Button onClick={this.handelTeacher}>Teacher</Button>
           {this.state.lineChart}
 
-          {this.state.showTooltip ? (
+          {this.state.show.showTooltip ? (
             <Popup
               top={this.state.top}
               left={this.state.left}
               getText={this.getText}
             />
           ) : null}
-          {this.state.showEditTooltip ? (
+          {this.state.show.showEditTooltip ? (
             <Popup
               top={this.state.top}
               left={this.state.left}
@@ -432,7 +419,7 @@ class LineChart extends Component {
             />
           ) : null}
 
-          {this.state.showReviewBox ? (
+          {this.state.show.showReviewBox ? (
             <ReviewBox
               top={this.state.top}
               left={this.state.left}
@@ -440,6 +427,15 @@ class LineChart extends Component {
               getComment={this.getComment}
             />
           ) : null}
+
+          {this.state.show.showExampleBox ? (
+            <ExampleBox
+              top={this.state.top}
+              left={this.state.left}
+              answer={this.state.studentAnswer}
+            />
+          ) : null}
+
           {answerPoints.map(
             value =>
               value.role.toLowerCase() == "student" ? (
@@ -466,7 +462,7 @@ class LineChart extends Component {
               onClick={() => this.handelDotClick(value, this.state.role)}
             />
           ))}
-          {this.state.showCommentBox ? (
+          {this.state.show.showCommentBox ? (
             <CommentBox
               top={this.state.top}
               left={this.state.left}
