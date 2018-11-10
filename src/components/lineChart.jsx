@@ -31,6 +31,17 @@ const Point = styled.button`
   padding: 7px;
   border-radius: 50%;
 `;
+const PointNote = styled.button`
+  background-color: ${prop => prop.bcolor};
+  position: relative;
+  padding: 7px;
+  border-radius: 50%;
+`;
+const Footer = styled.div`
+  position: relative;
+  text-align: left;
+  padding: 0em 0em 1em 2em;
+`;
 
 class LineChart extends Component {
   state = {
@@ -63,6 +74,7 @@ class LineChart extends Component {
     super(props);
 
     this.getText = this.getText.bind(this);
+    this.closePopup = this.closePopup.bind(this);
     this.getComment = this.getComment.bind(this);
     this.handelZoom = this.handelZoom.bind(this);
   }
@@ -161,6 +173,10 @@ class LineChart extends Component {
     });
 
     this.state.answersList.push(toUpload);
+    this.forceUpdate();
+  }
+  closePopup() {
+    this.setAllFalse();
     this.forceUpdate();
   }
 
@@ -305,6 +321,7 @@ class LineChart extends Component {
     let charopt = {
       responsive: true,
       animation: false,
+      maintainAspectRatio: false,
       scales: {
         xAxes: [
           {
@@ -409,23 +426,22 @@ class LineChart extends Component {
           <Button onClick={this.handelTeacher}>Teacher</Button>
           {this.state.lineChart}
 
-          {answerPoints.map(
-            value =>
-              value.role.toLowerCase() == "student" ? (
-                <Point
-                  bcolor="red"
-                  posi={{ top: value.top + "px", left: value.left + "px" }}
-                  value={value}
-                  onClick={() => this.handelDotClick(value, this.state.role)}
-                />
-              ) : (
-                <Point
-                  bcolor="yellow"
-                  posi={{ top: value.top + "px", left: value.left + "px" }}
-                  value={value}
-                  onClick={() => this.handelDotClick(value, this.state.role)}
-                />
-              )
+          {answerPoints.map(value =>
+            value.role.toLowerCase() == "student" ? (
+              <Point
+                bcolor="red"
+                posi={{ top: value.top + "px", left: value.left + "px" }}
+                value={value}
+                onClick={() => this.handelDotClick(value, this.state.role)}
+              />
+            ) : (
+              <Point
+                bcolor="yellow"
+                posi={{ top: value.top + "px", left: value.left + "px" }}
+                value={value}
+                onClick={() => this.handelDotClick(value, this.state.role)}
+              />
+            )
           )}
           {gradePoints.map(value => (
             <Point
@@ -441,6 +457,7 @@ class LineChart extends Component {
               top={this.state.top}
               left={this.state.left}
               getText={this.getText}
+              close={this.closePopup}
             />
           ) : null}
           {this.state.show.showEditTooltip ? (
@@ -449,6 +466,7 @@ class LineChart extends Component {
               left={this.state.left}
               value={this.state.studentAnswer}
               getText={this.getText}
+              close={this.closePopup}
             />
           ) : null}
 
@@ -458,6 +476,7 @@ class LineChart extends Component {
               left={this.state.left}
               answer={this.state.studentAnswer}
               getComment={this.getComment}
+              close={this.closePopup}
             />
           ) : null}
 
@@ -466,6 +485,7 @@ class LineChart extends Component {
               top={this.state.top}
               left={this.state.left}
               answer={this.state.studentAnswer}
+              close={this.closePopup}
             />
           ) : null}
 
@@ -477,9 +497,24 @@ class LineChart extends Component {
               getComment={this.getComment}
               comment={this.state.comment}
               result={this.state.result}
+              close={this.closePopup}
             />
           ) : null}
         </Main>
+        <Footer>
+          <p>
+            <PointNote bcolor="red" />
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Waiting for grade
+          </p>
+          <p>
+            <PointNote bcolor="green" />
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Teacher's grade and comments
+          </p>
+          <p>
+            <PointNote bcolor="yellow" />
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Teacher's example
+          </p>
+        </Footer>
       </div>
     );
   }

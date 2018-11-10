@@ -7,6 +7,17 @@ const Title = styled.h2`
   color: DimGrey;
 `;
 
+const Flex = styled.div`
+  display: flex;
+  position: relative;
+`;
+
+const Close = styled.input`
+  position: absolute;
+  right: 0;
+  margin: 10px 0px;
+`;
+
 const Text = styled.h3`
   font-size: 1.25em;
   text-align: center;
@@ -23,13 +34,25 @@ const Container = styled.div`
   padding: 0px 10px;
 `;
 
+// const Button = styled.button`
+//   height: 50px;
+//   width: 50px;
+//   border-radius: 50%;
+//   font-size: 2em;
+//   margin: 0.25em 1em;
+// `;
+
 const Button = styled.button`
-  height: 50px;
-  width: 50px;
-  border-radius: 50%;
-  font-size: 2em;
-  margin: 0.25em 1em;
+  font-size: 1em;
+  padding: 0.25em 1em;
+  border-radius: 4px;
+  color: #28a745;
+  background-color: transparent;
+  background-image: none;
+  border-color: #28a745;
+  margin: 0.5em 1em;
 `;
+
 const Save = styled.button`
   font-size: 1em;
   margin: 0 0.25em;
@@ -39,12 +62,24 @@ const Save = styled.button`
   border-radius: 4px;
 `;
 
+// const RightButton = styled(Button)`
+//   background-color: ${props => (props.active ? "Chartreuse" : "DarkGreen")};
+// `;
+
+// const WrongButton = styled(Button)`
+//   background-color: ${props => (props.active ? "OrangeRed" : "DarkRed")};
+// `;
+
 const RightButton = styled(Button)`
-  background-color: ${props => (props.active ? "Chartreuse" : "DarkGreen")};
+  background-color: ${props => (props.active ? "#28a745" : "transparent")};
+  color: ${props => (props.active ? "white" : "#28a745")};
+  border-color: ${props => (props.active ? "white" : "#28a745")};
 `;
 
 const WrongButton = styled(Button)`
-  background-color: ${props => (props.active ? "OrangeRed" : "DarkRed")};
+  background-color: ${props => (props.active ? "#dc3545" : "transparent")};
+  color: ${props => (props.active ? "white" : "#dc3545")};
+  border-color: ${props => (props.active ? "white" : "#dc3545")};
 `;
 
 const InputBox = styled.input`
@@ -118,13 +153,17 @@ class ReviewBox extends Component {
       <Container
         posi={{ top: this.props.top + "px", left: this.props.left + "px" }}
       >
-        <Title>Student Answer:</Title>
+        <Flex>
+          <Title>Student Answer:&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</Title>
+          <Close type="image" src="close.png" onClick={this.props.close} />
+        </Flex>
+
         <Text>{this.props.answer}</Text>
         <RightButton active={this.state.rightActive} onClick={this.clickRight}>
-          &#10004;
+          Correct
         </RightButton>
         <WrongButton active={this.state.wrongActive} onClick={this.clickWrong}>
-          &#10006;
+          Wrong
         </WrongButton>
         <br />
 

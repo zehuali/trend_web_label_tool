@@ -7,6 +7,17 @@ const Title = styled.h2`
   color: DimGrey;
 `;
 
+const Flex = styled.div`
+  display: flex;
+  position: relative;
+`;
+
+const Close = styled.input`
+  position: absolute;
+  right: 0;
+  margin: 10px 0px;
+`;
+
 const Container = styled.div`
   top: ${prop => prop.posi.top};
   left: ${prop => prop.posi.left};
@@ -79,7 +90,11 @@ class Popup extends Component {
       <Container
         posi={{ top: this.props.top + "px", left: this.props.left + "px" }}
       >
-        <Title>Label it:</Title>
+        <Flex>
+          <Title>Label it:&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</Title>
+          <Close type="image" src="close.png" onClick={this.props.close} />
+        </Flex>
+
         <InputBox value={this.state.value} onChange={this.handleChange} />
         <Save onClick={this.handelSubmit}>save</Save>
       </Container>

@@ -7,6 +7,17 @@ const Title = styled.h2`
   color: DimGrey;
 `;
 
+const Flex = styled.div`
+  display: flex;
+  position: relative;
+`;
+
+const Close = styled.input`
+  position: absolute;
+  right: 0;
+  margin: 10px 0px;
+`;
+
 const Text = styled.h3`
   font-size: 1.25em;
   text-align: center;
@@ -34,7 +45,11 @@ class ExampleBox extends Component {
       <Container
         posi={{ top: this.props.top + "px", left: this.props.left + "px" }}
       >
-        <Title>Example:</Title>
+        <Flex>
+          <Title>Example:&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</Title>
+          <Close type="image" src="close.png" onClick={this.props.close} />
+        </Flex>
+
         <Text>{this.props.answer}</Text>
       </Container>
     );
