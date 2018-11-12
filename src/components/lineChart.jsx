@@ -50,6 +50,8 @@ class LineChart extends Component {
     xAxis: 0,
     yAxis: 0,
     labels: [],
+    start: false,
+    server: "http://zehuali.com:3001/",
     show: {
       showTooltip: false,
       showReviewBox: false,
@@ -80,7 +82,8 @@ class LineChart extends Component {
   }
 
   componentDidMount() {
-    fetch("http://zehuali.com:3001/data")
+    const server = this.state.server;
+    fetch(server + "data")
       .then(res => res.json())
       .then(
         result => {
@@ -110,7 +113,7 @@ class LineChart extends Component {
           });
         }
       );
-    fetch("http://zehuali.com:3001/data/answer")
+    fetch(server + "data/answer")
       .then(res => res.json())
       .then(
         result => {
@@ -126,7 +129,7 @@ class LineChart extends Component {
           console.log(error);
         }
       );
-    fetch("http://zehuali.com:3001/data/grade")
+    fetch(server + "data/grade")
       .then(res => res.json())
       .then(
         result => {
@@ -155,6 +158,7 @@ class LineChart extends Component {
     //     return;
     //   }
     // }
+    const server = this.state.server;
     let toUpload = {
       x: this.state.xAxis,
       y: this.state.yAxis,
@@ -163,7 +167,7 @@ class LineChart extends Component {
       role: this.state.role
     };
     console.log("aa,", this);
-    fetch("http://zehuali.com:3001/data/answer", {
+    fetch(server + "data/answer", {
       method: "POST",
       headers: {
         "cache-control": "no-cache",
@@ -181,6 +185,7 @@ class LineChart extends Component {
   }
 
   getComment(comment, result) {
+    const server = this.state.server;
     let review = {
       x: this.state.xAxis,
       y: this.state.yAxis,
@@ -191,7 +196,7 @@ class LineChart extends Component {
     };
 
     console.log("review", review);
-    fetch("http://zehuali.com:3001/data/grade", {
+    fetch(server + "data/grade", {
       method: "POST",
       headers: {
         "cache-control": "no-cache",
@@ -219,14 +224,16 @@ class LineChart extends Component {
   handelStudent = () => {
     this.setAllFalse();
     this.setState({
-      role: "Student"
+      role: "Student",
+      start: true
     });
   };
 
   handelTeacher = () => {
     this.setAllFalse();
     this.setState({
-      role: "Teacher"
+      role: "Teacher",
+      start: true
     });
   };
 
@@ -414,8 +421,12 @@ class LineChart extends Component {
       <Line data={chartData} options={charopt} ref="chart" />
     );
     // answer points for teacher.
-    let answerPoints = this.getAnswerPoints(this.state.answersList, "green");
-    let gradePoints = this.getAnswerPoints(this.state.gradesList, "red");
+    let answerPoints = [];
+    let gradePoints = [];
+    if (this.state.start) {
+      answerPoints = this.getAnswerPoints(this.state.answersList, "green");
+      gradePoints = this.getAnswerPoints(this.state.gradesList, "red");
+    }
 
     return (
       <div>
@@ -426,31 +437,35 @@ class LineChart extends Component {
           <Button onClick={this.handelTeacher}>Teacher</Button>
           {this.state.lineChart}
 
-          {answerPoints.map(value =>
-            value.role.toLowerCase() == "student" ? (
-              <Point
-                bcolor="red"
-                posi={{ top: value.top + "px", left: value.left + "px" }}
-                value={value}
-                onClick={() => this.handelDotClick(value, this.state.role)}
-              />
-            ) : (
-              <Point
-                bcolor="yellow"
-                posi={{ top: value.top + "px", left: value.left + "px" }}
-                value={value}
-                onClick={() => this.handelDotClick(value, this.state.role)}
-              />
-            )
-          )}
-          {gradePoints.map(value => (
-            <Point
-              bcolor="green"
-              posi={{ top: value.top + "px", left: value.left + "px" }}
-              value={value}
-              onClick={() => this.handelDotClick(value, this.state.role)}
-            />
-          ))}
+          {this.state.start
+            ? answerPoints.map(value =>
+                value.role.toLowerCase() == "student" ? (
+                  <Point
+                    bcolor="red"
+                    posi={{ top: value.top + "px", left: value.left + "px" }}
+                    value={value}
+                    onClick={() => this.handelDotClick(value, this.state.role)}
+                  />
+                ) : (
+                  <Point
+                    bcolor="yellow"
+                    posi={{ top: value.top + "px", left: value.left + "px" }}
+                    value={value}
+                    onClick={() => this.handelDotClick(value, this.state.role)}
+                  />
+                )
+              )
+            : null}
+          {this.state.start
+            ? gradePoints.map(value => (
+                <Point
+                  bcolor="green"
+                  posi={{ top: value.top + "px", left: value.left + "px" }}
+                  value={value}
+                  onClick={() => this.handelDotClick(value, this.state.role)}
+                />
+              ))
+            : null}
 
           {this.state.show.showTooltip ? (
             <Popup
