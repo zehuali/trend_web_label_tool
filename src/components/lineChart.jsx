@@ -51,7 +51,7 @@ class LineChart extends Component {
     yAxis: 0,
     labels: [],
     start: false,
-    server: "http://zehuali.com:3001/",
+    server: "http://localhost:3001/",
     show: {
       showTooltip: false,
       showReviewBox: false,
@@ -96,8 +96,8 @@ class LineChart extends Component {
           console.log(datasets);
           this.setState({
             // isLoaded: true,
-            labels: result[1].label,
-            data: result[1].data,
+            labels: result[0].label,
+            data: result[0].data,
             datasets: datasets
           });
         },
