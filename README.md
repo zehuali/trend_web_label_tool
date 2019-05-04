@@ -55,3 +55,11 @@ At line 54 (or you can search keyword `http`) change url to your own server.
 ### Compile
 
     npm run build
+
+## Mongodb
+
+Install the Mongodb by https://docs.mongodb.com/manual/administration/install-on-linux/
+
+To insert a new data, you can simply run (change the port which works for you):
+
+    curl -X POST http://localhost:3001/data
