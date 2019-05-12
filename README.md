@@ -55,6 +55,10 @@ At line 54 (or you can search keyword `http`) change url to your own server.
 ### Compile
 
     npm run build
+    
+### Deploy
+
+    scp -r ./build username@hostname:/path/to/my_node_server/react-app/
 
 ## Mongodb
 
