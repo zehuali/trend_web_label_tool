@@ -38,7 +38,7 @@ Or if you need run it in backgound on 80 port.
   
 ## Frondend
 
-In `my_node_server` folder
+In `my_node_server` folder or local machine
 
     git clone https://github.com/zehuali/trend_web_label_tool.git
     mv trend_web_label_tool react-app
@@ -52,11 +52,11 @@ In `my_node_server` folder
 
 At line 54 (or you can search keyword `http`) change url to your own server.
 
-### Compile
+### Build
 
     npm run build
     
-### Deploy
+### Deploy (If build in local machine)
 
     scp -r ./build username@hostname:/path/to/my_node_server/react-app/
 
