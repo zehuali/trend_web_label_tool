@@ -20,7 +20,8 @@ const Button = styled.button`
 `;
 
 const Main = styled.div`
-  margin: 0em 0em 1em 0em;
+  margin: 0em auto 1em;
+  max-width: 75%;
 `;
 
 const Point = styled.button`
@@ -432,6 +433,7 @@ class LineChart extends Component {
       <div>
         <Main id="main">
           <h1>EEG labeling demo</h1>
+	  <p> (Click on one of the role buttons below to initialize the data. Yes, we will fix later.) </p>  
           <p>You are using the system as a <u>{this.state.role}  </u></p>
 	  <p>Switch your role to: 
             <Button onClick={this.handelStudent}>Student</Button>
