@@ -20,7 +20,8 @@ const Button = styled.button`
 `;
 
 const Main = styled.div`
-  margin: 0em 0em 1em 0em;
+  margin: 0em auto 1em;
+  max-width: 75%;
 `;
 
 const Point = styled.button`
@@ -51,7 +52,7 @@ class LineChart extends Component {
     yAxis: 0,
     labels: [],
     start: false,
-    server: "http://localhost:3001/",
+    server: "http://34.227.191.148:3001/",
     show: {
       showTooltip: false,
       showReviewBox: false,
@@ -306,7 +307,7 @@ class LineChart extends Component {
       labels: this.state.labels,
       datasets: this.state.datasets.map((data, index) => {
         return {
-          label: "Dataset " + (index + 1),
+          label: "channel " + (index + 1),
           fill: false,
           lineTension: 0,
           backgroundColor: colors[index % colors.length],
@@ -431,10 +432,13 @@ class LineChart extends Component {
     return (
       <div>
         <Main id="main">
-          <h1>Line Chart Demo</h1>
-          <h3>Current Role: {this.state.role}</h3>
-          <Button onClick={this.handelStudent}>Student</Button>
-          <Button onClick={this.handelTeacher}>Teacher</Button>
+          <h1>EEG labeling demo</h1>
+	  <p> (Click on one of the role buttons below to initialize the data. Yes, we will fix later.) </p>  
+          <p>You are using the system as a <u>{this.state.role}  </u></p>
+	  <p>Switch your role to: 
+            <Button onClick={this.handelStudent}>Student</Button>
+            <Button onClick={this.handelTeacher}>Teacher</Button>
+	  </p>
           {this.state.lineChart}
 
           {this.state.start
@@ -519,15 +523,15 @@ class LineChart extends Component {
         <Footer>
           <p>
             <PointNote bcolor="red" />
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Waiting for grade
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Annotations to be graded
           </p>
           <p>
             <PointNote bcolor="green" />
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Teacher's grade and comments
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Annotations graded          
           </p>
           <p>
             <PointNote bcolor="yellow" />
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Teacher's example
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Examples by the teacher
           </p>
         </Footer>
       </div>
